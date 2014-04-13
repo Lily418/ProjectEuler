@@ -1,0 +1,61 @@
+### Standard header information
+	.data
+	.align 2
+
+### Define strings
+cr: 	.asciiz "\n"
+
+### Standard preliminaries
+        .text
+        .globl main
+
+
+main:
+li $s0, 1
+li $s1, 0
+loop: addi $t0, $s0, -1000
+bgez $t0, endloop
+move $a0, $s0
+jal isMultiple3or5
+blez $v0, continue
+add $s1, $s1, $s0
+continue: addi $s0, $s0, 1
+j loop
+endloop:nop
+
+move $a0, $s1
+li $v0, 1
+syscall
+# Print a carriage return
+	li	$v0,4			# System call code 4 for print string
+	la	$a0,cr			# Argument string as input
+	syscall			# Print the string
+
+### Make a clean exit from the program
+        li 	$v0,10			# System call code for exit
+        syscall
+
+
+isMultiple3or5:
+addi $sp, $sp, -8
+sw $ra, 4($sp)
+sw $s0, 8($sp)
+li $a1, 3
+jal isMultiple
+move $s0, $v0
+li $a1, 5
+jal isMultiple
+or $v0, $s0, $v0
+lw $ra, 4($sp)
+lw $s0, 8($sp)
+addi $sp, $sp 4
+jr $ra
+
+
+isMultiple:
+div $a0, $a1
+mfhi $t0
+move $v0, $zero
+bgtz $t0 end
+li $v0, 1
+end: jr $ra
